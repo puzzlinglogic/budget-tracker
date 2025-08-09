@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 500;
+            color: #fff;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background: #111;
+            border: 1px solid #333;
+            padding: 20px;
+            border-radius: 4px;
+        }
+        
+        .section h2 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            font-size: 14px;
+            border-radius: 2px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #666;
+        }
+        
+        button {
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #333;
+            border-color: #666;
+        }
+        
+        .metric {
+            background: #1a1a1a;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid #444;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 300;
+            color: #fff;
+        }
+        
+        .metric.alert {
+            border-left-color: #d32f2f;
+        }
+        
+        .metric.warning {
+            border-left-color: #f57c00;
+        }
+        
+        .metric.good {
+            border-left-color: #388e3c;
+        }
+        
+        .expense-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            padding: 10px;
+            border: 1px solid #333;
+        }
+        
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+            font-size: 13px;
+        }
+        
+        .expense-item:last-child {
+            border-bottom: none;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 0 5px;
+            font-size: 12px;
+        }
+        
+        .delete-btn:hover {
+            color: #d32f2f;
+        }
+        
+        .export-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BUDGET TRACKER</h1>
+        </div>
+        
+        <div class="grid">
+            <div class="section">
+                <h2>Add Expense</h2>
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">Select</option>
+                            <option value="rent">Rent</option>
+                            <option value="internet">Internet</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="groceries">Groceries</option>
+                            <option value="laundry">Laundry</option>
+                            <option value="food">Food/Dining</option>
+                            <option value="transport">Transport</option>
+                            <option value="personal">Personal</option>
+                            <option value="debt">Debt Payment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="amount">Amount ($)</label>
+                        <input type="number" id="amount" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description">
+                    </div>
+                    
+                    <button type="submit">Add Expense</button>
+                </form>
+            </div>
+            
+            <div class="section">
+                <h2>Current Month Overview</h2>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="income-adjust">Monthly Income</label>
+                    <input type="number" id="income-adjust" value="3600" onchange="updateIncome(this.value)">
+                </div>
+                <div class="metric" id="spent-metric">
+                    <div class="metric-label">Total Spent</div>
+                    <div class="metric-value">$0</div>
+                </div>
+                
+                <div class="metric" id="remaining-metric">
+                    <div class="metric-label">Remaining Budget</div>
+                    <div class="metric-value">$0</div>
+                </div>
+                
+                <div class="metric" id="debt-metric">
+                    <div class="metric-label">Debt Payment This Month</div>
+                    <div class="metric-value">$0</div>
+                </div>
+                
+                <div class="metric" id="daily-metric">
+                    <div class="metric-label">Daily Average</div>
+                    <div class="metric-value">$0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Recent Expenses</h2>
+            <div class="expense-list" id="expense-list">
+                <div style="color: #666; text-align: center; padding: 20px;">No expenses logged</div>
+            </div>
+        </div>
+        
+        <div class="section export-section">
+            <h2>Export Data</h2>
+            <button onclick="exportToCSV()">Export to CSV</button>
+            <button onclick="clearAllData()" style="margin-left: 10px; background: #8b0000;">Clear All Data</button>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize date to today
+        document.getElementById('date').valueAsDate = new Date();
+        
+        // Load expenses from localStorage
+        let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+        
+        // Budget configuration - stored and editable
+        let budgetConfig = JSON.parse(localStorage.getItem('budgetConfig') || JSON.stringify({
+            monthlyIncome: 3600,
+            fixedCosts: 2342,
+            debtAllocation: 0.7,
+            creditCardBalance: 0,
+            categoryLimits: {
+                groceries: 250,
+                food: 100,
+                transport: 50,
+                personal: 200,
+                other: 100
+            }
+        }));
+        
+        // Add expense
+        document.getElementById('expense-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const expense = {
+                id: Date.now(),
+                date: document.getElementById('date').value,
+                category: document.getElementById('category').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                description: document.getElementById('description').value || ''
+            };
+            
+            expenses.push(expense);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            
+            // Reset form
+            document.getElementById('expense-form').reset();
+            document.getElementById('date').valueAsDate = new Date();
+            
+            updateDisplay();
+        });
+        
+        // Update income
+        function updateIncome(value) {
+            budgetConfig.monthlyIncome = parseFloat(value);
+            localStorage.setItem('budgetConfig', JSON.stringify(budgetConfig));
+            updateDisplay();
+        }
+        
+        // Update display
+        function updateDisplay() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            // Set income field
+            document.getElementById('income-adjust').value = budgetConfig.monthlyIncome;
+            
+            // Filter current month expenses
+            const monthExpenses = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+            
+            // Calculate totals
+            const totalSpent = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const debtPayments = monthExpenses.filter(e => e.category === 'debt')
+                .reduce((sum, e) => sum + e.amount, 0);
+            const remainingBudget = budgetConfig.monthlyIncome - totalSpent;
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const dailyAverage = totalSpent / now.getDate();
+            
+            // Update metrics
+            document.querySelector('#spent-metric .metric-value').textContent = `$${totalSpent.toFixed(2)}`;
+            document.querySelector('#remaining-metric .metric-value').textContent = `$${remainingBudget.toFixed(2)}`;
+            document.querySelector('#debt-metric .metric-value').textContent = `$${debtPayments.toFixed(2)}`;
+            document.querySelector('#daily-metric .metric-value').textContent = `$${dailyAverage.toFixed(2)}`;
+            
+            // Update metric colors
+            const spentMetric = document.getElementById('spent-metric');
+            const remainingMetric = document.getElementById('remaining-metric');
+            
+            spentMetric.className = 'metric';
+            remainingMetric.className = 'metric';
+            
+            if (totalSpent > budgetConfig.monthlyIncome) {
+                spentMetric.classList.add('alert');
+                remainingMetric.classList.add('alert');
+            } else if (totalSpent > budgetConfig.monthlyIncome * 0.9) {
+                spentMetric.classList.add('warning');
+                remainingMetric.classList.add('warning');
+            } else {
+                remainingMetric.classList.add('good');
+            }
+            
+            // Update expense list
+            const listEl = document.getElementById('expense-list');
+            if (monthExpenses.length === 0) {
+                listEl.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No expenses logged</div>';
+            } else {
+                listEl.innerHTML = monthExpenses
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 20)
+                    .map(e => `
+                        <div class="expense-item">
+                            <div>
+                                <strong>${e.date}</strong> - ${e.category}: $${e.amount.toFixed(2)}
+                                ${e.description ? `<br><small style="color: #666">${e.description}</small>` : ''}
+                            </div>
+                            <button class="delete-btn" onclick="deleteExpense(${e.id})">×</button>
+                        </div>
+                    `).join('');
+            }
+        }
+        
+        // Delete expense
+        function deleteExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            updateDisplay();
+        }
+        
+        // Export to CSV
+        function exportToCSV() {
+            if (expenses.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const csv = [
+                ['Date', 'Category', 'Amount', 'Description'],
+                ...expenses.map(e => [e.date, e.category, e.amount, e.description])
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `expenses_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+        
+        // Clear all data
+        function clearAllData() {
+            if (confirm('Delete all expense data?')) {
+                expenses = [];
+                localStorage.removeItem('expenses');
+                updateDisplay();
+            }
+        }
+        
+        // Initial display update
+        updateDisplay();
+    </script>
+</body>
+</html>
